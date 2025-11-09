@@ -14,32 +14,24 @@
     <div class="flex min-h-screen">
         <div class="hidden md:block w-64 flex-shrink-0">
         </div>
+
         <section id="transactions-view" class="flex-1 text-white p-4 md:p-8 overflow-y-auto">
             <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                 <div class="flex flex-wrap justify-between gap-3 p-4">
-                    <p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Transactions</p>
+                    <h2 class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Transactions</h2>
                 </div>
                 <div class="flex gap-3 max-md:gap-9 p-3 flex-wrap pr-4">
-                    <button
-                        class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-2">
-                        <p class="text-white text-sm font-medium leading-normal">Type</p>
-                        <div class="text-white" data-icon="CaretDown" data-size="20px" data-weight="regular">
-                            <img src="images/icons/arrow-down.png" alt="arrow down icon" class="w-4 h-4">
-                        </div>
+                    <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-2 text-white text-sm font-medium leading-normal">
+                        Type
+                        <img src="images/icons/arrow-down.png" alt="arrow down icon" class="w-4 h-4">
                     </button>
-                    <button
-                        class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-2">
-                        <p class="text-white text-sm font-medium leading-normal">Date</p>
-                        <div class="text-white" data-icon="CaretDown" data-size="20px" data-weight="regular">
-                            <img src="images/icons/arrow-down.png" alt="arrow down icon" class="w-4 h-4">
-                        </div>
+                    <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-2 text-white text-sm font-medium leading-normal">
+                        Date
+                        <img src="images/icons/arrow-down.png" alt="arrow down icon" class="w-4 h-4">
                     </button>
-                    <button
-                        class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-2">
-                        <p class="text-white text-sm font-medium leading-normal">Amount</p>
-                        <div class="text-white" data-icon="CaretDown" data-size="20px" data-weight="regular">
-                            <img src="images/icons/arrow-down.png" alt="arrow down icon" class="w-4 h-4">
-                        </div>
+                    <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#283039] pl-4 pr-2 text-white text-sm font-medium leading-normal">
+                        Amount
+                        <img src="images/icons/arrow-down.png" alt="arrow down icon" class="w-4 h-4">
                     </button>
                 </div>
                 <div class="px-4 py-3 @container">
@@ -152,20 +144,16 @@
                     </div>
                 </div>
                 <div class="flex items-center justify-center p-4">
-                    <a href="#" class="flex size-10 items-center justify-center">
+                    <button class="flex size-10 items-center justify-center">
                         <img src="images/icons/arrow-left.png" alt="arrow left icon" class="w-5 h-5">
-                    </a>
-                    <button class="text-sm font-bold leading-normal tracking-[0.015em] flex size-10 items-center justify-center text-white rounded-full bg-[#283039]"
-                        href="#">1</button>
-                    <button class="text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full"
-                        href="#">2</button>
-                    <button class="text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full"
-                        href="#">3</button>
-                    <button class="text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full"
-                        href="#">4</button>
-                    <a href="#" class="flex size-10 items-center justify-center">
+                    </button>
+                    <button class="text-sm font-bold leading-normal tracking-[0.015em] flex size-10 items-center justify-center text-white rounded-full bg-[#283039]">1</button>
+                    <button class="text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full">2</button>
+                    <button class="text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full">3</button>
+                    <button class="text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full">4</button>
+                    <button class="flex size-10 items-center justify-center">
                         <img src="images/icons/arrow-right.png" alt="arrow right icon" class="w-5 h-5">
-                    </a>
+                    </button>
                 </div>
             </div>
 
