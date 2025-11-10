@@ -12,7 +12,7 @@
 
 <body class="bg-[#121417] text-[#FFFFFF]">
     <!-- Sign Up Form -->
-    <section id = "signup_page"class="min-h-screen flex items-center justify-center p-4">
+    <section id="signup_page" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-md flex flex-col items-center text-center">
             <h1 class="text-3xl mb-8">Welcome to YCD Bank</h1>
             <form id="signup_form" class="flex flex-col gap-4 items-center w-full">
@@ -30,9 +30,12 @@
                 </div>
                 <div class="flex flex-col w-full max-w-xs text-left gap-1">
                     <label for="signup_password" class="text-sm ml-1">Password</label>
-                    <input
-                        class="h-10 rounded-lg px-3 w-full text-xs bg-[#293038] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1280ED]"
-                        type="password" id="signup_password" name="password" placeholder="Enter a password">
+                    <div class="flex">
+                        <input
+                            class="h-10 rounded-lg px-3 w-full text-xs bg-[#293038] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1280ED]"
+                            type="password" id="signup_password" name="password" placeholder="Enter a password">
+                            <img class="ml-8" src="images/icons/info.svg">
+                    </div>
                 </div>
                 <div class="flex flex-col w-full max-w-xs text-left gap-1">
                     <label for="signup_confirm_password" class="text-sm ml-1">Confirm Password</label>
@@ -40,11 +43,13 @@
                         class="h-10 rounded-lg px-3 w-full text-xs bg-[#293038] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#1280ED]"
                         type="password" id="signup_confirm_password" name="password" placeholder="Confirm password">
                 </div>
-                <button class="h-10 bg-[#1280ED] rounded-lg mt-4 w-full max-w-xs hover:bg-[#1069C4] transition duration-200 flex items-center justify-center"
+                <button
+                    class="h-10 bg-[#1280ED] rounded-lg mt-4 w-full max-w-xs hover:bg-[#1069C4] transition duration-200 flex items-center justify-center"
                     type="submit">Sign Up</button>
                 <div id="message_erreur" style="color: red;"></div>
             </form>
-            <p style="color:#9EABBA">Already have an account ? <button id = "go_to_login_button"class="underline">Login</button></p>
+            <p style="color:#9EABBA">Already have an account ? <button id="go_to_login_button"
+                    class="underline">Login</button></p>
         </div>
     </section>
     <!-- Login Form -->
