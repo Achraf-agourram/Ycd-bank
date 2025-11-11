@@ -7,7 +7,10 @@ const transactions = [
     {id: 5, date: "2025-10-26", type: "Payment", amount: 100, amountType: true},
     {id: 6, date: "2025-10-26", type: "Transfer", amount: -90, amountType: false},
     {id: 7, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
-    {id: 8, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
+    {id: 8, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+
+    {id: 9, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 10, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
 ];
 const updatedtransactions = [];
 
@@ -27,16 +30,29 @@ function showTransaction(id, date, type, amount, amountType){
     container.appendChild(newTable);
 }
 
-let temp = [{id: 1, date: "2025-10-26", type: "Payment", amount: 100, amountType: true}];
+let temp = [];
 let counter = 0;
-for(let i=1; i<transactions.length; i++){
-    temp[i] = transactions[i];
+let i = 1;
+transactions.forEach(transaction => {
+    temp[i-1] = transaction;
     if(i%4 === 0){
-        console.log("yes");
+        updatedtransactions[counter] = temp;
+        temp = [];
+        counter++;
     }
-}
+    i++
+});
 
-console.log(temp);
+/*let rest = transactions.length % 4;
+if(rest){
+    console.log(rest);
+}*/
+
+updatedtransactions.forEach(t => {
+    t.filter(obj => Object.keys(obj).length > 0);
+    console.log(t);
+});
+//console.log(updatedtransactions);
 
 
 
