@@ -18,10 +18,41 @@ const modal_close_button = document.getElementById("modal_close_button")
 const dashboard_view = document.getElementById("dashboard-view")
 const dashboard_username = document.getElementById("dashboard_username")
 const dashboard_rib = document.getElementById("dashboard_rib")
+let is_balance_visible = true
 
-const myaccounts_view = document.getElementById("myaccounts-view")
-const transfers_view = document.getElementById("transfers-view")
-const beneficiaries_view = document.getElementById("beneficiaries-view")
+// show / hide balance for main account in dashboard page
+const balance_amount_1 = document.getElementById("balance_amount_1")
+const toggle_balance_button_1 = document.getElementById("toggle_balance_1")
+const balance_icon_1 = document.getElementById("balance_icon_1")
+toggle_balance_button_1.addEventListener("click", () => {
+    if (is_balance_visible === true) {
+        balance_amount_1.textContent = "****"
+        balance_icon_1.src = "images/icons/show.png"
+    }
+    else {
+        const real_balance = balance_amount_1.dataset.balance
+        balance_amount_1.textContent = real_balance
+        balance_icon_1.src = "images/icons/hideshoweye.png"
+    }
+    is_balance_visible = !is_balance_visible
+})
+
+// show / hide balance for savings account in dashboard
+const balance_amount_2 = document.getElementById("balance_amount_2")
+const toggle_balance_button_2 = document.getElementById("toggle_balance_2")
+const balance_icon_2 = document.getElementById("balance_icon_2")
+toggle_balance_button_2.addEventListener("click", () => {
+    if (is_balance_visible === true) {
+        balance_amount_2.textContent = "****"
+        balance_icon_2.src = "images/icons/show.png"
+    }
+    else {
+        const real_balance = balance_amount_2.dataset.balance
+        balance_amount_2.textContent = real_balance
+        balance_icon_2.src = "images/icons/hideshoweye.png"
+    }
+    is_balance_visible = !is_balance_visible
+})
 
 const all_pages = [login_page, signup_page, dashboard_view]
 function go_to_login_page() {
@@ -44,14 +75,13 @@ function go_to_dashboard() {
     const currentUser = JSON.parse(connected_user_json);
     // 2. On remplit le dashboard avec ses infos
     if (currentUser) {
-        dashboard_username.textContent = currentUser.prenom;
+        dashboard_username.textContent = "Welcome back, " + currentUser.prenom;
         dashboard_rib.textContent = `Checking ${currentUser.rib}`;
     }
     // 3. On affiche le dashboard
     dashboard_view.classList.remove("hidden");
 }
 
-// --- VÉRIFICATION AU CHARGEMENT DE LA PAGE ---
 window.addEventListener("DOMContentLoaded", () => {
     // On regarde si un utilisateur est gardé en mémoire de session
     if (sessionStorage.getItem("connected_user")) {
@@ -83,12 +113,12 @@ function display_green_notification(msg) {
 }
 
 function display_red_notification(msg) {
-    success_notification.style.display = "none";
+    success_notification.style.display = "none"
     error_notification.textContent = msg
     error_notification.style.display = "block"
     setTimeout(() => {
-        error_notification.style.display = "none";
-    }, 3000);
+        error_notification.style.display = "none"
+    }, 3000)
 }
 
 // Clic sur "Register Now"
@@ -174,10 +204,10 @@ copy_id_button.addEventListener("click", () => {
     navigator.clipboard.writeText(modal_user_id.value)
         .then(() => {
             // Donne un retour visuel à l'utilisateur
-            copy_id_button.textContent = "Copié !"
+            copy_id_button.textContent = "Copied !"
             // Remet le texte original après 2 secondes
             setTimeout(() => {
-                copy_id_button.textContent = "Copier"
+                copy_id_button.textContent = "Copy"
             }, 2000)
         })
         .catch(err => {
@@ -189,10 +219,10 @@ copy_id_button.addEventListener("click", () => {
 copy_rib_button.addEventListener("click", () => {
     navigator.clipboard.writeText(modal_user_rib.value)
         .then(() => {
-            copy_rib_button.textContent = "Copié !";
+            copy_rib_button.textContent = "Copied !";
             setTimeout(() => {
-                copy_rib_button.textContent = "Copier";
-            }, 2000);
+                copy_rib_button.textContent = "Copy";
+            }, 2000)
         })
         .catch(err => {
             console.error("Erreur lors de la copie du RIB: ", err)
@@ -209,27 +239,27 @@ login_form.addEventListener("submit", (event) => {
 
     if (password === "" || identifier === "") {
         display_red_notification("All fiels must be filled")
+        return
     }
     // 2. Récupérer les utilisateurs
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const users = JSON.parse(localStorage.getItem("users")) || []
 
     // 3. Chercher l'utilisateur
-    const found_user = users.find(user => user.id === identifier);
+    const found_user = users.find(user => user.id === identifier)
 
     // 4. Vérifier si l'utilisateur existe ET si le mot de passe est bon
     if (found_user && found_user.mot_de_passe === password) {
         // SUCCÈS !
-        display_green_notification("Login Successfull !");
+        display_green_notification("Login Successfull !")
 
         // 5. ON GARDE L'UTILISATEUR EN MÉMOIRE
-        sessionStorage.setItem("connected_user", JSON.stringify(found_user));
+        sessionStorage.setItem("connected_user", JSON.stringify(found_user))
 
         // 6. ON VA AU DASHBOARD
-        go_to_dashboard();
+        go_to_dashboard()
 
-        login_form.reset();
+        login_form.reset()
     } else {
-        // ÉCHEC
         display_red_notification("Identifier or password incorrect");
     }
 })
