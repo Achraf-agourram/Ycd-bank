@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .notification {
       display: none;
       position: absolute;
@@ -17,3 +18,8 @@
 
 .error{background-color: #f44336;}
 .success{background-color: #14A44D;}
+=======
+body {
+    font-family: 'Manrope', sans-serif;
+}
+>>>>>>> feat/aziz/page-login
