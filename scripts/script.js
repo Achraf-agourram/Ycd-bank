@@ -10,7 +10,13 @@ const transactions = [
     {id: 8, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
 
     {id: 9, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
-    {id: 10, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
+    {id: 10, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+    {id: 11, date: "2025-10-26", type: "Payment", amount: 100, amountType: true},
+    {id: 12, date: "2025-10-26", type: "Transfer", amount: -90, amountType: false},
+
+    {id: 13, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 14, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+    {id: 15, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
 ];
 
 function showTransaction(id, date, type, amount, amountType){
@@ -29,12 +35,12 @@ function showTransaction(id, date, type, amount, amountType){
     container.appendChild(newTable);
 }
 
-function separateTransactions(){
+function separateTransactions(arr){
     const updatedtransactions = [];
     let temp = [];
     let counter = 0;
     let index = 1;
-    transactions.forEach(transaction => {
+    arr.forEach(transaction => {
         temp[index-1] = transaction;
         if(index%4 === 0){
             updatedtransactions[counter] = temp;
@@ -44,15 +50,20 @@ function separateTransactions(){
         index++
     });
 
-    let rest = transactions.length % 4;
+    let rest = arr.length % 4;
     if(rest){
         for(let i=0; i<rest; i++){
             updatedtransactions[counter] = temp.filter(obj => Object.keys(obj).length > 0);
         }
     }
+    
+    for(let i=0; i<updatedtransactions.length; i++){
+        updatedtransactions[i] = updatedtransactions[i].filter(obj => Object.keys(obj).length > 0);
+    }
+
     return updatedtransactions
 }
 
-console.log(separateTransactions());
+console.log(separateTransactions(transactions));
 // .filter(obj => Object.keys(obj).length > 0)
 //showTransaction(transaction.id, transaction.date, transaction.type, transaction.amount, transaction.amountType);
