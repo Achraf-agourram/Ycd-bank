@@ -73,8 +73,13 @@ function showTransactionOfEachTable(){
         }
     }
 }
+function switchPagination(num){
+    console.log(paginationBtns[num-1]);
+}
 
-
+document.getElementById("pagination-container").addEventListener("click", (e) => {
+    switchPagination(e.target.textContent);
+});
 
 
 showTransactionOfEachTable();
