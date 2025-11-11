@@ -21,11 +21,47 @@ const dashboard_rib = document.getElementById("dashboard_rib")
 
 const myaccounts_view = document.getElementById("myaccounts-view")
 const transfers_view = document.getElementById("transfers-view")
+const beneficiaries_view = document.getElementById("beneficiaries-view")
 
-function hideshow() {
-    signup_page.classList.add("hidden");
+const all_pages = [login_page, signup_page, dashboard_view]
+function go_to_login_page() {
+    // 1. Cache toutes les pages
+    all_pages.forEach(page => page.classList.add("hidden"));
     login_page.classList.remove("hidden");
 }
+
+// Affiche la page d'Inscription
+function go_to_signup_page() {
+    all_pages.forEach(page => page.classList.add("hidden"));
+    signup_page.classList.remove("hidden");
+}
+
+// Affiche le Dashboard (et le remplit avec les infos de l'utilisateur)
+function go_to_dashboard() {
+    all_pages.forEach(page => page.classList.add("hidden"));
+    // 1. On récupère l'utilisateur depuis la session
+    const connected_user_json = sessionStorage.getItem("connected_user");
+    const currentUser = JSON.parse(connected_user_json);
+    // 2. On remplit le dashboard avec ses infos
+    if (currentUser) {
+        dashboard_username.textContent = currentUser.prenom;
+        dashboard_rib.textContent = `Checking ${currentUser.rib}`;
+    }
+    // 3. On affiche le dashboard
+    dashboard_view.classList.remove("hidden");
+}
+
+// --- VÉRIFICATION AU CHARGEMENT DE LA PAGE ---
+window.addEventListener("DOMContentLoaded", () => {
+    // On regarde si un utilisateur est gardé en mémoire de session
+    if (sessionStorage.getItem("connected_user")) {
+        // Si oui, on va direct au dashboard
+        go_to_dashboard()
+    } else {
+        // Sinon, on va à la page de login
+        go_to_login_page()
+    }
+})
 
 // Fonction qui genere un RIB pour l'utilisateur
 function generate_rib(length) {
@@ -57,13 +93,12 @@ function display_red_notification(msg) {
 
 // Clic sur "Register Now"
 register_now_button.addEventListener("click", () => {
-    login_page.classList.add("hidden")
-    signup_page.classList.remove("hidden")
+    go_to_signup_page()
 })
 
 // Clic sur "Login"
 go_to_login_button.addEventListener("click", () => {
-    hideshow()
+    go_to_login_page()
 })
 
 // Validation du formulaire d'inscription et ajout du nouvel utilisateur dans le local storage
@@ -128,9 +163,9 @@ signup_form.addEventListener("submit", (event) => {
 modal_close_button.addEventListener("click", () => {
     // 1. Cacher le modal
     success_modal_overlay.classList.add("hidden")
-    
+
     // 2. Rediriger vers la page de login
-    hideshow() 
+    go_to_login_page()
 })
 
 // Clic sur le bouton "Copier ID"
@@ -141,7 +176,7 @@ copy_id_button.addEventListener("click", () => {
             // Donne un retour visuel à l'utilisateur
             copy_id_button.textContent = "Copié !"
             // Remet le texte original après 2 secondes
-            setTimeout(() => { 
+            setTimeout(() => {
                 copy_id_button.textContent = "Copier"
             }, 2000)
         })
@@ -155,8 +190,8 @@ copy_rib_button.addEventListener("click", () => {
     navigator.clipboard.writeText(modal_user_rib.value)
         .then(() => {
             copy_rib_button.textContent = "Copié !";
-            setTimeout(() => { 
-                copy_rib_button.textContent = "Copier"; 
+            setTimeout(() => {
+                copy_rib_button.textContent = "Copier";
             }, 2000);
         })
         .catch(err => {
@@ -172,8 +207,29 @@ login_form.addEventListener("submit", (event) => {
     const password = login_password.value
     const identifier = login_identifier.value
 
-    if (password === "" || identifier === ""){
+    if (password === "" || identifier === "") {
         display_red_notification("All fiels must be filled")
     }
+    // 2. Récupérer les utilisateurs
+    const users = JSON.parse(localStorage.getItem("users")) || [];
 
+    // 3. Chercher l'utilisateur
+    const found_user = users.find(user => user.id === identifier);
+
+    // 4. Vérifier si l'utilisateur existe ET si le mot de passe est bon
+    if (found_user && found_user.mot_de_passe === password) {
+        // SUCCÈS !
+        display_green_notification("Login Successfull !");
+
+        // 5. ON GARDE L'UTILISATEUR EN MÉMOIRE
+        sessionStorage.setItem("connected_user", JSON.stringify(found_user));
+
+        // 6. ON VA AU DASHBOARD
+        go_to_dashboard();
+
+        login_form.reset();
+    } else {
+        // ÉCHEC
+        display_red_notification("Identifier or password incorrect");
+    }
 })
