@@ -85,30 +85,37 @@ function showTransactionOfEachTable(){
 }
 function switchPagination(num){
     for(let i=0; i<4; i++){
-        paginationBtns[i].classList.remove('bg-[#283039]');
-        paginationBtns[num%4].classList.add('bg-[#283039]')
+        try{paginationBtns[i].classList.remove('bg-[#283039]');}catch(er){}
+        paginationBtns[num%4].classList.add('bg-[#283039]');
     }
 }
 function showPaginationButtons(){
     for(let i=paginationIndex; i<=paginationIndex+3; i++){
-        let btn = document.createElement("button");
-        btn.classList = "text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full pagination";
-        btn.textContent = i;
-        document.getElementById('pagination-container').insertBefore(btn, document.getElementById('next-arrow'));
+        if(i<=allTransactions.length){
+            let btn = document.createElement("button");
+            btn.classList = "text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full pagination";
+            btn.textContent = i;
+            document.getElementById('pagination-container').insertBefore(btn, document.getElementById('next-arrow'));
+        }else{break}
+        
     }
 }
 
 document.getElementById("pagination-container").addEventListener("click", (e) => {
     if(e.target.textContent != ""){
-        switchPagination(parseInt(e.target.textContent)-1);
-        document.getElementById('transactions-container').innerHTML = "";
-        showTransactionOfEachTable();
+        try{
+            switchPagination(parseInt(e.target.textContent)-1);
+            document.getElementById('transactions-container').innerHTML = "";
+            showTransactionOfEachTable();
+        }catch(er){}
     }
     else{
         try{
             if(e.target.alt == "arrow right icon"){
-                paginationIndex += 4;
-            }else{paginationIndex -= 4;}
+                if(allTransactions.length>paginationIndex+4){paginationIndex += 4;}
+            }else{
+                if(paginationIndex>1){paginationIndex -= 4;}
+            }
             document.querySelectorAll(".pagination").forEach(btn => btn.remove());
             showPaginationButtons();
         }catch(er){console.log(er);}
@@ -119,5 +126,4 @@ showPaginationButtons();
 var paginationBtns = document.getElementsByClassName("pagination");
 paginationBtns[0].classList.add("bg-[#283039]");
 
-//if(allTransactions[4] === undefined){console.log("yes");}
 showTransactionOfEachTable();
