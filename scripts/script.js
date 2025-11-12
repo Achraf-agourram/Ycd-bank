@@ -14,18 +14,30 @@ const modal_user_rib = document.getElementById("modal_user_rib")
 const copy_id_button = document.getElementById("copy_id_button")
 const copy_rib_button = document.getElementById("copy_rib_button")
 const modal_close_button = document.getElementById("modal_close_button")
+const left_side_menu = document.getElementById("left_side_menu")
 
 const dashboard_view = document.getElementById("dashboard-view")
 const dashboard_username = document.getElementById("dashboard_username")
 const dashboard_rib = document.getElementById("dashboard_rib")
-let is_balance_visible = true
+let is_balance_visible_1 = true
+let is_balance_visible_2 = true
 
-// show / hide balance for main account in dashboard page
+
+const recent_transactions_list = document.getElementById("recent_transactions_list")
+const recent_transactions_table = document.getElementById("recent_transactions_table")
+const no_transactions_message = document.getElementById("no_transactions_message")
+const show_all_button_container = document.getElementById("show_all_button_container")
+
+const go_to_myaccount = document.getElementById("go_to_myaccount")
+// go_to_myaccount.addEventListener("click" , () =>{
+
+// })
+// Show / hide balance for main account in dashboard page
 const balance_amount_1 = document.getElementById("balance_amount_1")
 const toggle_balance_button_1 = document.getElementById("toggle_balance_1")
 const balance_icon_1 = document.getElementById("balance_icon_1")
 toggle_balance_button_1.addEventListener("click", () => {
-    if (is_balance_visible === true) {
+    if (is_balance_visible_1 === true) {
         balance_amount_1.textContent = "****"
         balance_icon_1.src = "images/icons/show.png"
     }
@@ -34,15 +46,15 @@ toggle_balance_button_1.addEventListener("click", () => {
         balance_amount_1.textContent = real_balance
         balance_icon_1.src = "images/icons/hideshoweye.png"
     }
-    is_balance_visible = !is_balance_visible
+    is_balance_visible_1 = !is_balance_visible_1
 })
 
-// show / hide balance for savings account in dashboard
+// Show / hide balance for savings account in dashboard page
 const balance_amount_2 = document.getElementById("balance_amount_2")
 const toggle_balance_button_2 = document.getElementById("toggle_balance_2")
 const balance_icon_2 = document.getElementById("balance_icon_2")
 toggle_balance_button_2.addEventListener("click", () => {
-    if (is_balance_visible === true) {
+    if (is_balance_visible_2 === true) {
         balance_amount_2.textContent = "****"
         balance_icon_2.src = "images/icons/show.png"
     }
@@ -51,25 +63,76 @@ toggle_balance_button_2.addEventListener("click", () => {
         balance_amount_2.textContent = real_balance
         balance_icon_2.src = "images/icons/hideshoweye.png"
     }
-    is_balance_visible = !is_balance_visible
+    is_balance_visible_2 = !is_balance_visible_2
 })
 
 const all_pages = [login_page, signup_page, dashboard_view]
+
+function recent_transactions() {
+    // 1. Récupérer l'utilisateur connecté
+    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
+
+    if (!currentUser || !currentUser.transactions) {
+        console.error("Utilisateur ou transactions non trouvés");
+        return;
+    }
+
+    // 2. Vider la liste actuelle pour éviter les doublons
+    recent_transactions_list.innerHTML = "";
+
+    // 3. Vérifier s'il y a des transactions
+    if (currentUser.transactions.length === 0) {
+        // S'il n'y en a pas :
+        no_transactions_message.classList.remove("hidden")
+        recent_transactions_table.classList.add("hidden")
+        show_all_button_container.classList.add("hidden")
+    } else {
+        // S'il y en a :
+        no_transactions_message.classList.add("hidden")
+        recent_transactions_table.classList.remove("hidden")
+        show_all_button_container.classList.remove("hidden")
+
+        // 4. Prendre les 4 dernières transactions (les plus récentes)
+        const recent = currentUser.transactions.slice().reverse().slice(0, 4);
+
+        // 5. Créer le HTML pour chaque transaction
+        recent.forEach(tx => {
+            // Détermine la couleur (rouge/vert) et le signe (+/-)
+            const amountClass = tx.amount < 0 ? 'text-red-500' : 'text-green-500';
+            const amountSign = tx.amount < 0 ? '' : '+'; // Ajoute un "+" pour les montants positifs
+
+            const transactionRow = `
+                <div class="p-4 grid grid-cols-3 items-center">
+                    <div class="text-gray-400">${tx.date}</div>
+                    <div class="text-gray-400">${tx.type}</div>
+                    <div class="text-center font-medium ${amountClass}">
+                        ${amountSign}$${tx.amount.toFixed(2)}
+                    </div>
+                </div>
+            `;
+            // Ajoute la nouvelle ligne au tableau
+            recent_transactions_list.innerHTML += transactionRow;
+        })
+    }
+}
+
 function go_to_login_page() {
     // 1. Cache toutes les pages
     all_pages.forEach(page => page.classList.add("hidden"));
+    left_side_menu.classList.add("hidden")
     login_page.classList.remove("hidden");
 }
 
 // Affiche la page d'Inscription
 function go_to_signup_page() {
-    all_pages.forEach(page => page.classList.add("hidden"));
-    signup_page.classList.remove("hidden");
+    all_pages.forEach(page => page.classList.add("hidden"))
+    left_side_menu.classList.add("hidden")
+    signup_page.classList.remove("hidden")
 }
 
 // Affiche le Dashboard (et le remplit avec les infos de l'utilisateur)
 function go_to_dashboard() {
-    all_pages.forEach(page => page.classList.add("hidden"));
+    all_pages.forEach(page => page.classList.add("hidden"))
     // 1. On récupère l'utilisateur depuis la session
     const connected_user_json = sessionStorage.getItem("connected_user");
     const currentUser = JSON.parse(connected_user_json);
@@ -79,7 +142,9 @@ function go_to_dashboard() {
         dashboard_rib.textContent = `Checking ${currentUser.rib}`;
     }
     // 3. On affiche le dashboard
-    dashboard_view.classList.remove("hidden");
+    dashboard_view.classList.remove("hidden")
+    left_side_menu.classList.remove("hidden")
+    recent_transactions()
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -174,7 +239,8 @@ signup_form.addEventListener("submit", (event) => {
         nom: last_name,
         mot_de_passe: password,
         rib: rib,
-        id: id
+        id: id,
+        transactions : [{id: 1, date: "2025-10-26", type: "Payment", amount: -100, amountType: true},]
     }
     users.push(new_user)
 
@@ -189,11 +255,10 @@ signup_form.addEventListener("submit", (event) => {
     signup_form.reset()
 })
 
-// Clic sur le bouton "Fermer" du modal
+// Clic sur le bouton "go to login" du modal
 modal_close_button.addEventListener("click", () => {
     // 1. Cacher le modal
     success_modal_overlay.classList.add("hidden")
-
     // 2. Rediriger vers la page de login
     go_to_login_page()
 })
