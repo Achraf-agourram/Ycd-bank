@@ -5,6 +5,9 @@ const login_page = document.getElementById("login_page")
 const success_notification = document.getElementById("success_notification")
 const error_notification = document.getElementById("error_notification")
 
+const go_to_transactions = document.getElementById("go_to_transactions")
+const transactions_view = document.getElementById("transactions-view")
+
 const register_now_button = document.getElementById("register_now_button")
 const go_to_login_button = document.getElementById("go_to_login_button")
 
@@ -20,20 +23,46 @@ const modal_close_button = document.getElementById("modal_close_button")
 const display_rib_close_button = document.getElementById("display_rib_close_button")
 const left_side_menu = document.getElementById("left_side_menu")
 
+const beneficiaries_view = document.getElementById("beneficiaries-view")
+const go_to_beneficiaries_button = document.getElementById("go_to_beneficiaries")
+
+go_to_beneficiaries_button.addEventListener("click", () => {
+    all_pages.forEach(page => page.classList.add("hidden"))
+    beneficiaries_view.classList.remove("hidden")
+    left_side_menu.classList.remove("hidden")
+    let users = JSON.parse(localStorage.getItem("users")) || []
+    recent_beneficiaries()
+})
+
+go_to_transactions.addEventListener("click", () => {
+    all_pages.forEach(page => page.classList.add("hidden"))
+    transactions_view.classList.remove("hidden")
+    left_side_menu.classList.remove("hidden")
+    let users = JSON.parse(localStorage.getItem("users")) || []
+})
+
+const logout_button = document.getElementById("logout_button");
+logout_button.addEventListener("click", () => {
+    //vider le seesion storage
+    sessionStorage.removeItem("connected_user")
+    go_to_login_page();
+})
+
 const dashboard_view = document.getElementById("dashboard-view")
 const dashboard_username = document.getElementById("dashboard_username")
 const go_to_dashboard_button = document.getElementById("go_to_dashboard")
 
 const go_to_transfers_button = document.getElementById("go_to_transfers_button")
 
-go_to_transfers_button.addEventListener("click" , () =>{
+go_to_transfers_button.addEventListener("click", () => {
     go_to_transfers()
 })
 
-function go_to_transfers(){
+function go_to_transfers() {
     all_pages.forEach(page => page.classList.add("hidden"))
     transfers_view.classList.remove("hidden")
     left_side_menu.classList.remove("hidden")
+    populate_beneficiary_dropdown()
 }
 
 go_to_dashboard_button.addEventListener("click", () => {
@@ -48,7 +77,7 @@ const display_rib_button_1 = document.getElementById("display_rib_button_1")
 const export_rib_button = document.getElementById("export_rib_button")
 const export_rib_button_1 = document.getElementById("export_rib_button_1")
 display_rib_button.addEventListener("click", () => {
-// 1. Récupérer l'utilisateur connecté depuis la session
+    // 1. Récupérer l'utilisateur connecté depuis la session
     const connected_user_json = sessionStorage.getItem("connected_user")
     const currentUser = JSON.parse(connected_user_json)
     modal_user_id_1.value = currentUser.id
@@ -56,7 +85,7 @@ display_rib_button.addEventListener("click", () => {
     display_rib_overlay.classList.remove("hidden")
 })
 
-display_rib_button_1.addEventListener("click", () =>{
+display_rib_button_1.addEventListener("click", () => {
     // 1. Récupérer l'utilisateur connecté depuis la session
     const connected_user_json = sessionStorage.getItem("connected_user");
     const currentUser = JSON.parse(connected_user_json)
@@ -71,13 +100,18 @@ display_rib_close_button.addEventListener("click", () => {
 export_rib_button.addEventListener("click", () => {
     window.print()
 })
-export_rib_button_1.addEventListener("click" ,() =>{
+export_rib_button_1.addEventListener("click", () => {
     window.print()
 })
 const recent_transactions_list = document.getElementById("recent_transactions_list")
 const recent_transactions_table = document.getElementById("recent_transactions_table")
 const no_transactions_message = document.getElementById("no_transactions_message")
 const show_all_button_container = document.getElementById("show_all_button_container")
+
+const recent_beneficiaries_list = document.getElementById("recent_beneficiaries_list")
+const recent_beneficiaries_table = document.getElementById("recent_beneficiaries_table")
+const no_beneficiaries_message = document.getElementById("no_beneficiaries_message")
+const show_all_beneficiaries_button = document.getElementById("show_all_beneficiaries_button")
 
 const go_to_myaccount = document.getElementById("go_to_myaccounts")
 const my_accounts_view = document.getElementById("myaccounts-view")
@@ -160,22 +194,59 @@ toggle_balance_button_4.addEventListener("click", () => {
     is_balance_visible_4 = !is_balance_visible_4
 })
 
-const all_pages = [login_page, signup_page, dashboard_view, my_accounts_view,transfers_view]
+const all_pages = [login_page, signup_page, dashboard_view, my_accounts_view, transfers_view, beneficiaries_view]
 
+
+const add_beneficiary_form = document.getElementById("add_beneficiary_form");
+
+add_beneficiary_form.addEventListener("submit", (event) => {
+    event.preventDefault(); // Empêche la page de se recharger
+
+    // 1. Récupérer les infos du formulaire
+    const name_input = document.getElementById("beneficiary_name_input");
+    const rib_input = document.getElementById("beneficiary_rib_input");
+
+    const newBeneficiary = {
+        name: name_input.value,
+        rib: rib_input.value,
+        status: true // Nouveau bénéficiaire est 'Active' par défaut
+    }
+
+
+    // 2. MISE À JOUR DE sessionStorage (pour voir le changement tout de suite)
+    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
+    currentUser.beneficiaries.push(newBeneficiary);
+    sessionStorage.setItem("connected_user", JSON.stringify(currentUser));
+
+    // 3. MISE À JOUR DE localStorage (pour que ça RESTE SAUVEGARDÉ)
+    let allUsers = JSON.parse(localStorage.getItem("users")) || []
+    // Trouve notre utilisateur dans la liste de TOUS les utilisateurs
+    const userIndex = allUsers.findIndex(user => user.id === currentUser.id);
+
+    if (userIndex !== -1) { // Si on l'a trouvé
+        // On met à jour ses bénéficiaires
+        allUsers[userIndex] = currentUser; // Remplace l'ancien objet par le nouveau (mis à jour)
+
+        // On sauvegarde la liste COMPLÈTE de tous les utilisateurs
+        localStorage.setItem("users", JSON.stringify(allUsers));
+    }
+
+    // 4. Rafraîchir la liste et vider le formulaire
+    recent_beneficiaries(); // Met à jour l'affichage
+    add_beneficiary_form.reset(); // Vide les champs
+    display_green_notification("Beneficiary added successfully!");
+})
+
+// Fonction qui affiche les 4 dernieres transactions dans le dashboard
 function recent_transactions() {
     // 1. Récupérer l'utilisateur connecté
-    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
-
-    if (!currentUser || !currentUser.transactions) {
-        console.error("Utilisateur ou transactions non trouvés");
-        return;
-    }
+    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"))
 
     // 2. Vider la liste actuelle pour éviter les doublons
     recent_transactions_list.innerHTML = "";
 
     // 3. Vérifier s'il y a des transactions
-    if (currentUser.transactions.length === 0) {
+    if (!currentUser.transactions || currentUser.transactions.length === 0) {
         // S'il n'y en a pas :
         no_transactions_message.classList.remove("hidden")
         recent_transactions_table.classList.add("hidden")
@@ -210,6 +281,51 @@ function recent_transactions() {
     }
 }
 
+// Fonction qui affiche les 4 derniers beneficiaires 
+function recent_beneficiaries() {
+    // 1. Récupérer l'utilisateur connecté
+    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"))
+
+    // 2. Vider la liste actuelle pour éviter les doublons
+    recent_beneficiaries_list.innerHTML = "";
+
+    // 3. Vérifier s'il y a des beneficiaires
+    if (!currentUser.beneficiaries || currentUser.beneficiaries.length === 0) {
+        // S'il n'y en a pas :
+        no_beneficiaries_message.classList.remove("hidden")
+        recent_beneficiaries_table.classList.add("hidden")
+        show_all_beneficiaries_button.classList.add("hidden")
+    } else {
+        // S'il y en a :
+        no_beneficiaries_message.classList.add("hidden")
+        recent_beneficiaries_table.classList.remove("hidden")
+        show_all_beneficiaries_button.classList.remove("hidden")
+
+        // 4. Prendre les 4 dernières transactions (les plus récentes)
+        const recent = currentUser.beneficiaries.slice().reverse().slice(0, 4);
+
+        recent.forEach(bn => {
+            const beneficiary_status_color = bn.status === true ? 'bg-green-600' : 'bg-red-600'
+            const beneficiary_status = bn.status === true ? 'Active' : 'Blocked'
+            const beneficiaryRow = `<div class="p-4 grid grid-cols-1 gap-3 md:grid-cols-4 md:items-center" >
+                                <div class="text-gray-400">
+                                    <span class="font-medium text-white md:hidden">Name: </span>
+                                    ${bn.name}
+                                </div>
+                                <div class="text-gray-400">
+                                    <span class="font-medium text-white md:hidden">Account: </span>
+                                    ${bn.rib}
+                                </div>
+                                <button
+                                    class="${beneficiary_status_color} h-10 rounded-lg w-full md:w-3/4 md:justify-self-center">${beneficiary_status}</button>
+
+                                <button class="beneficiary_delete_button justify-self-center md:justify-self-center" data-rib="${bn.rib}"><img src="images/icons/trash.svg"></button>
+                            </div >`
+            // Ajoute la nouvelle ligne au tableau
+            recent_beneficiaries_list.innerHTML += beneficiaryRow
+        })
+    }
+}
 function go_to_login_page() {
     // 1. Cache toutes les pages
     all_pages.forEach(page => page.classList.add("hidden"));
@@ -230,11 +346,21 @@ function go_to_dashboard() {
     // 1. On récupère l'utilisateur depuis la session
     const connected_user_json = sessionStorage.getItem("connected_user");
     const currentUser = JSON.parse(connected_user_json);
+
     // 2. On remplit le dashboard avec ses infos
     if (currentUser) {
-        dashboard_username.textContent = "Welcome back, " + currentUser.prenom;
-        dashboard_rib.textContent = `Checking ${currentUser.rib}`;
+        dashboard_username.textContent = "Welcome back, " + currentUser.prenom
+        dashboard_rib.textContent = `Checking ${currentUser.rib}`
+
+        // On met à jour les soldes sur la page
+        balance_amount_1.textContent = `$${currentUser.main_balance.toFixed(2)}`;
+        balance_amount_2.textContent = `$${currentUser.savings_balance.toFixed(2)}`;
+
+        // On met aussi les soldes en "data-balance" pour la fonction "cacher/montrer"
+        balance_amount_1.dataset.balance = `$${currentUser.main_balance.toFixed(2)}`;
+        balance_amount_2.dataset.balance = `$${currentUser.savings_balance.toFixed(2)}`;
     }
+
     // 3. On affiche le dashboard
     dashboard_view.classList.remove("hidden")
     left_side_menu.classList.remove("hidden")
@@ -343,7 +469,10 @@ signup_form.addEventListener("submit", (event) => {
         mot_de_passe: password,
         rib: rib,
         id: id,
-        transactions: [{ id: 1, date: "2025-10-26", type: "Payment", amount: -100, amountType: true },]
+        main_balance: 10000,
+        savings_balance: 15000,
+        transactions: [],
+        beneficiaries: []
     }
     users.push(new_user)
 
@@ -387,9 +516,9 @@ copy_id_button.addEventListener("click", () => {
 copy_rib_button.addEventListener("click", () => {
     navigator.clipboard.writeText(modal_user_rib.value)
         .then(() => {
-            copy_rib_button.textContent = "Copied !";
+            copy_rib_button.textContent = "Copied !"
             setTimeout(() => {
-                copy_rib_button.textContent = "Copy";
+                copy_rib_button.textContent = "Copy"
             }, 2000)
         })
         .catch(err => {
@@ -430,4 +559,175 @@ login_form.addEventListener("submit", (event) => {
     } else {
         display_red_notification("Identifier or password incorrect");
     }
+})
+
+// Écouteur pour tous les clics sur la LISTE des bénéficiaires
+recent_beneficiaries_list.addEventListener("click", (event) => {
+
+    // On vérifie si ce qu'on a cliqué est (ou est dans) un bouton de suppression
+    const deleteButton = event.target.closest(".beneficiary_delete_button");
+
+    // Si on n'a pas cliqué sur un bouton de suppression, on ne fait rien
+    if (!deleteButton) {
+        return;
+    }
+
+    // Si on a cliqué sur un bouton, on demande confirmation
+    if (confirm("Do you really want to delete this beneficiary?")) {
+
+        // 1. On récupère le RIB à supprimer depuis le 'data-rib'
+        const ribToDelete = deleteButton.dataset.rib;
+
+        // 2. MISE À JOUR DE sessionStorage
+        let currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
+
+        // On filtre le tableau pour garder tout SAUF celui qu'on veut supprimer
+        currentUser.beneficiaries = currentUser.beneficiaries.filter(b => b.rib !== ribToDelete);
+
+        sessionStorage.setItem("connected_user", JSON.stringify(currentUser));
+
+        // 3. MISE À JOUR DE localStorage (pour que ce soit permanent)
+        let allUsers = JSON.parse(localStorage.getItem("users")) || [];
+        const userIndex = allUsers.findIndex(user => user.id === currentUser.id);
+
+        if (userIndex !== -1) {
+            allUsers[userIndex] = currentUser; // On remplace l'ancien objet par le nouveau
+            localStorage.setItem("users", JSON.stringify(allUsers));
+        }
+
+        // 4. Rafraîchir la liste
+        recent_beneficiaries();
+        display_green_notification("Beneficiary deleted!");
+    }
+})
+
+function populate_beneficiary_dropdown() {
+    // 1. On récupère le menu déroulant
+    const select_menu = document.getElementById("select_beneficiary");
+
+    // 2. On récupère l'utilisateur et ses bénéficiaires
+    const current_user = JSON.parse(sessionStorage.getItem("connected_user"));
+
+    // 3. On vide les anciennes options (sauf la première "Choose...")
+    while (select_menu.options.length > 1) {
+        select_menu.remove(1);
+    }
+
+    // 4. On vérifie si l'utilisateur a des bénéficiaires
+    if (current_user.beneficiaries && current_user.beneficiaries.length > 0) {
+
+        // 5. On crée une <option> pour chaque bénéficiaire
+        current_user.beneficiaries.forEach(beneficiary => {
+            // Crée un nouvel élément <option>
+            const new_option = document.createElement("option");
+
+            // Définit le texte (ce que l'utilisateur voit)
+            new_option.textContent = beneficiary.name;
+
+            // Définit la valeur (le RIB du destinataire)
+            new_option.value = beneficiary.rib;
+
+            // Ajoute la nouvelle option à la liste
+            select_menu.appendChild(new_option);
+        });
+    }
+}
+
+// On sélectionne le formulaire et les champs
+const transfer_form = document.getElementById("transfer_form");
+const select_from_account = document.getElementById("select_from_account");
+const select_beneficiary = document.getElementById("select_beneficiary");
+const transfer_amount_input = document.getElementById("transfer_amount_input");
+
+// On écoute la soumission du formulaire
+transfer_form.addEventListener("submit", (event) => {
+    event.preventDefault(); // Empêche la page de recharger
+
+    // 1. Récupérer les infos
+    const from_account = select_from_account.value;
+    const receiver_rib = select_beneficiary.value;
+    const amount_string = transfer_amount_input.value;
+    const amount_regex = /^\d+(\.\d{1,2})?$/;
+
+    let current_user = JSON.parse(sessionStorage.getItem("connected_user"));
+    let all_users = JSON.parse(localStorage.getItem("users"));
+
+    // 2. Vérifications
+    if (receiver_rib === "Choose a Beneficiary") {
+        display_red_notification("Please select a beneficiary");
+        return;
+    }
+
+    if (!amount_regex.test(amount_string)) {
+        display_red_notification("Invalid amount format. (e.g., 1200 or 1200.50)");
+        return;
+    }
+
+    const amount = parseFloat(amount_string);
+
+    if (amount <= 0) {
+        display_red_notification("Amount must be greater than 0");
+        return;
+    }
+
+    let has_enough_funds = false;
+    if (from_account === 'main') {
+        has_enough_funds = current_user.main_balance >= amount;
+    } else if (from_account === 'savings') {
+        has_enough_funds = current_user.savings_balance >= amount;
+    }
+
+    if (!has_enough_funds) {
+        display_red_notification("You do not have enough funds in that account");
+        return;
+    }
+
+    // 3. Trouver l'expéditeur et le destinataire
+    const sender_index = all_users.findIndex(user => user.id === current_user.id);
+    const receiver_index = all_users.findIndex(user => user.rib === receiver_rib);
+
+    if (receiver_index === -1) {
+        display_red_notification("Error: Beneficiary account not found");
+        return;
+    }
+
+    if (sender_index === receiver_index) {
+        display_red_notification("You cannot send money to yourself");
+        return;
+    }
+
+    // 4. Effectuer la transaction (juste pour l'expéditeur)
+    const sender_transaction = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        type: `Transfer to ${all_users[receiver_index].prenom}`,
+        amount: -amount
+    };
+
+    // Retirer l'argent de l'expéditeur
+    if (from_account === 'main') {
+        all_users[sender_index].main_balance -= amount;
+    } else {
+        all_users[sender_index].savings_balance -= amount;
+    }
+    all_users[sender_index].transactions.push(sender_transaction);
+
+    // 5. Sauvegarder les changements
+    localStorage.setItem("users", JSON.stringify(all_users));
+
+    // ✅ CORRECTION ICI : On met à jour l'objet 'current_user' AVANT de le sauvegarder
+    // On prend la version la plus à jour (celle de all_users)
+    sessionStorage.setItem("connected_user", JSON.stringify(all_users[sender_index]));
+
+    // 6. Donner un retour à l'utilisateur
+    display_green_notification("Transfer successful!");
+    transfer_form.reset();
+    populate_beneficiary_dropdown();
+
+    // 7. (Optionnel) Mettre à jour le texte du Dashboard même s'il est caché
+    const updated_user = all_users[sender_index];
+    balance_amount_1.textContent = `${updated_user.main_balance.toFixed(2)}$`;
+    balance_amount_2.textContent = `$${updated_user.savings_balance.toFixed(2)}`;
+    balance_amount_1.dataset.balance = `$${updated_user.main_balance.toFixed(2)}`;
+    balance_amount_2.dataset.balance = `$${updated_user.savings_balance.toFixed(2)}`;
 })

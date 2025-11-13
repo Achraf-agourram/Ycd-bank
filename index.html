@@ -44,7 +44,7 @@
                         </button>
                     </div>
                     <div class="menu">
-                        <button class="menu-item">
+                        <button id="go_to_beneficiaries" class="menu-item">
                             <div class="icon"><img src="images/icons/dollar1.svg" alt="benefeciaries"></div>
                             <p>Benefeciaries</p>
                         </button>
@@ -56,7 +56,7 @@
                         </button>
                     </div>
                     <div class="menu">
-                        <button class="menu-item">
+                        <button id = "go_to_transactions" class="menu-item">
                             <div class="icon"><img src="images/icons/menu.svg" alt="transactions"></div>
                             <p>Transactions</p>
                         </button>
@@ -69,7 +69,7 @@
                     </div>
                 </div>
                 <div class="menu">
-                    <button class="menu-item">
+                    <button id="logout_button" class="menu-item">
                         <div class="icon"><img src="images/icons/logout.svg" alt="logout"></div>
                         <p>Log out</p>
                     </button>
@@ -154,7 +154,7 @@
 
                 <div id="no_transactions_message"
                     class="text-center text-gray-400 p-8 bg-[#1A1D21] rounded-xl border border-gray-800">
-                    No transactions available.
+                    You don't have any transaction yet.
                 </div>
 
                 <div id="show_all_button_container" class="mt-4 flex justify-center hidden">
@@ -165,26 +165,33 @@
                 </div>
             </div>
         </section>
-                <!-- Page Transfers -->
+        <!-- Page Transfers -->
         <section id="transfers-view" class="hidden flex-1 bg-[#121417] text-white p-4 md:p-8 overflow-y-auto">
             <h1 class="text-3xl md:text-3xl font-semibold mb-2">Make a Transfer</h1>
             <div>
-                <h2 class="text-2xl font-semibold mt-16">Transfer to</h2>
-                <div class="grid grid-cols-1 gap-4 mt-4" style="color:#9EABBA">
-                    <form>
-                        <select id="select_beneficiary"
-                            class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 w-full lg:w-1/2" required>
-                            <option style="color:#9EABBA;" disabled selected>Choose a Beneficiary</option>
-                            <option>Achraf</option>
-                            <option>Mehdi</option>
-                            <option>Aziz</option>
-                        </select>
-                    </form>
-                    <input type="text" placeholder="Amount"
-                        class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 px-2 w-full lg:w-1/2">
-                    <button
+
+                <h2 class="text-2xl font-semibold mt-16">Transfer</h2>
+
+                <form id="transfer_form" class="grid grid-cols-1 gap-4 mt-4" style="color:#9EABBA">
+
+                    <select id="select_from_account"
+                        class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 w-full lg:w-1/2" required>
+                        <option value="main">Main Account</option>
+                        <option value="savings">Savings Account</option>
+                    </select>
+
+                    <select id="select_beneficiary"
+                        class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 w-full lg:w-1/2" required>
+                        <option style="color:#9EABBA;" disabled selected>Choose a Beneficiary</option>
+                    </select>
+
+                    <input id="transfer_amount_input" type="text" placeholder="Amount"
+                        class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 px-2 w-full lg:w-1/2" required>
+
+                    <button type="submit"
                         class="bg-[#1280ED] text-white rounded-lg hover:bg-[#1069C4] transition duration-200 w-full lg:w-24 h-10">Transfer</button>
-                </div>
+                </form>
+
                 <div>
                     <h2 class="text-2xl font-semibold mt-16">Pay a Bill</h2>
                     <div class="grid grid-cols-1 gap-4 mt-4" style="color:#9EABBA">
@@ -198,20 +205,22 @@
                             class="bg-[#1280ED] text-white rounded-lg hover:bg-[#1069C4] transition duration-200 w-full lg:w-24 h-10">Pay</button>
                     </div>
                 </div>
+
+            </div>
         </section>
-         <section id="beneficiaries-view" class="flex-1 bg-[#121417] text-white p-4 md:p-8 overflow-y-auto">
+        <section id="beneficiaries-view" class="hidden flex-1 bg-[#121417] text-white p-4 md:p-8 overflow-y-auto">
             <h1 class="text-3xl md:text-3xl font-semibold mb-2">Manage Beneficiaries</h1>
             <p style="color:#9EABBA">Add, edit, or remove beneficiaries for your account.</p>
             <div>
                 <h2 class="text-2xl mt-6">Add New Beneficiary</h2>
-                <form class="grid grid-cols-1 gap-4 mt-4" style="color:#9EABBA">
+                <form id="add_beneficiary_form" class="grid grid-cols-1 gap-4 mt-4" style="color:#9EABBA">
                     <label for="Beneficiary" style="color:white">Beneficiary Name</label>
-                    <input type="text" placeholder="Enter beneficiary name"
+                    <input id="beneficiary_name_input" type="text" placeholder="Enter beneficiary name"
                         class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 px-2 w-full lg:w-1/2" required>
                     <label for="Beneficiary" style="color:white">Bank Account Details</label>
-                    <input type="text" placeholder="Amount"
+                    <input id="beneficiary_rib_input" type="text" placeholder="Bank Account Details"
                         class="bg-[#3B4754] border-2 border-gray-600 rounded-lg h-12 px-2 w-full lg:w-1/2" required>
-                    <button
+                    <button type="submit"
                         class="bg-[#1280ED] text-white rounded-lg hover:bg-[#1069C4] transition duration-200 w-full lg:w-32 h-10">Add
                         Beneficiary</button>
                 </form>
@@ -223,7 +232,8 @@
                         class="pl-10 pr-8 bg-[#293038] rounded-lg text-grey-800 h-12 w-full">
                 </div>
                 <div class="max-w-3xl mt-6">
-                    <div class="bg-[#1A1D21] rounded-xl border border-gray-800 overflow-hidden text-sm md:text-base">
+                    <div id="recent_beneficiaries_table"
+                        class="bg-[#1A1D21] rounded-xl border border-gray-800 overflow-hidden text-sm md:text-base">
 
                         <div class="hidden md:grid grid-cols-4 p-4 text-white-400 border-b border-gray-800 font-medium">
                             <div>Name</div>
@@ -232,77 +242,18 @@
                             <div class="text-center">Delete</div>
                         </div>
 
-                        <div class="divide-y divide-gray-800">
-
-                            <div class="p-4 grid grid-cols-1 gap-3 md:grid-cols-4 md:items-center">
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Name: </span>
-                                    Achraf Podcast
-                                </div>
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Account: </span>
-                                    07365317964753
-                                </div>
-                                <button
-                                    class="bg-[#293038] h-10 rounded-lg w-full md:w-3/4 md:justify-self-center">Active</button>
-
-                                <button class="justify-self-center md:justify-self-center"><img
-                                        src="images/icons/trash.svg"></button>
-                            </div>
-
-                            <div class="p-4 grid grid-cols-1 gap-3 md:grid-cols-4 md:items-center">
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Name: </span>
-                                    Aziz Robinho
-                                </div>
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Account: </span>
-                                    65093272374028
-                                </div>
-                                <button
-                                    class="bg-green-600 h-10 rounded-lg w-full md:w-3/4 md:justify-self-center">Active</button>
-
-                                <button class="justify-self-center md:justify-self-center"><img
-                                        src="images/icons/trash.svg"></button>
-                            </div>
-
-                            <div class="p-4 grid grid-cols-1 gap-3 md:grid-cols-4 md:items-center">
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Name: </span>
-                                    Achraf Iniesta
-                                </div>
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Account: </span>
-                                    83540274509373
-                                </div>
-                                <button
-                                    class="bg-red-600 h-10 rounded-lg w-full md:w-3/4 md:justify-self-center">Blocked</button>
-
-                                <button class="justify-self-center md:justify-self-center"><img
-                                        src="images/icons/trash.svg"></button>
-                            </div>
-
-                            <div class="p-4 grid grid-cols-1 gap-3 md:grid-cols-4 md:items-center">
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Name: </span>
-                                    Zlatan Ibrahimovic
-                                </div>
-                                <div class="text-gray-400">
-                                    <span class="font-medium text-white md:hidden">Account: </span>
-                                    83640264629943
-                                </div>
-                                <button
-                                    class="bg-[#293038] h-10 rounded-lg w-full md:w-3/4 md:justify-self-center">Active</button>
-
-                                <button class="justify-self-center md:justify-self-center"><img
-                                        src="images/icons/trash.svg"></button>
-                            </div>
+                        <div id="recent_beneficiaries_list" class="divide-y divide-gray-800">
                         </div>
                     </div>
 
+                    <div id="no_beneficiaries_message"
+                        class="text-center text-gray-400 p-8 bg-[#1A1D21] rounded-xl border border-gray-800">
+                        You don't have any beneficiary yet.
+                    </div>
+
                     <div class="mt-4 flex justify-center">
-                        <button
-                            class="w-full lg:w-auto bg-[#1280ED] hover:bg-[#1069C4] text-white px-6 py-3 rounded-lg font-medium transition">
+                        <button id="show_all_beneficiaries_button"
+                            class="w-full lg:w-auto bg-[#1280ED] hover:bg-[#1069C4] text-white px-6 py-3 rounded-lg font-medium transition hidden">
                             Show All Beneficiary
                         </button>
                     </div>
