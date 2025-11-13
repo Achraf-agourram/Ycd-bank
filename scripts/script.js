@@ -194,7 +194,7 @@ toggle_balance_button_4.addEventListener("click", () => {
     is_balance_visible_4 = !is_balance_visible_4
 })
 
-const all_pages = [login_page, signup_page, dashboard_view, my_accounts_view, transfers_view, beneficiaries_view]
+const all_pages = [login_page, signup_page, dashboard_view, my_accounts_view, transfers_view, beneficiaries_view,transactions_view]
 
 
 const add_beneficiary_form = document.getElementById("add_beneficiary_form");
@@ -560,174 +560,137 @@ login_form.addEventListener("submit", (event) => {
         display_red_notification("Identifier or password incorrect");
     }
 })
+const transactions = [
+    {id: 1, date: "2025-10-26", type: "Payment", amount: 100, amountType: true},
+    {id: 2, date: "2025-10-26", type: "Transfer", amount: -90, amountType: false},
+    {id: 3, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 4, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
 
-// Écouteur pour tous les clics sur la LISTE des bénéficiaires
-recent_beneficiaries_list.addEventListener("click", (event) => {
+    {id: 5, date: "2025-10-26", type: "Payment", amount: 200, amountType: true},
+    {id: 6, date: "2025-10-26", type: "Transfer", amount: -20, amountType: false},
+    {id: 7, date: "2025-10-26", type: "Transfer", amount: 10, amountType: true},
+    {id: 8, date: "2025-10-26", type: "Recharge", amount: -5, amountType: false},
 
-    // On vérifie si ce qu'on a cliqué est (ou est dans) un bouton de suppression
-    const deleteButton = event.target.closest(".beneficiary_delete_button");
+    {id: 9, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 10, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+    {id: 11, date: "2025-10-26", type: "Payment", amount: 100, amountType: true},
+    {id: 12, date: "2025-10-26", type: "Transfer", amount: -90, amountType: false},
 
-    // Si on n'a pas cliqué sur un bouton de suppression, on ne fait rien
-    if (!deleteButton) {
-        return;
-    }
+    {id: 13, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 14, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+    {id: 15, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 16, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
 
-    // Si on a cliqué sur un bouton, on demande confirmation
-    if (confirm("Do you really want to delete this beneficiary?")) {
+    {id: 17, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 18, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+    {id: 19, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 20, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
 
-        // 1. On récupère le RIB à supprimer depuis le 'data-rib'
-        const ribToDelete = deleteButton.dataset.rib;
+    {id: 21, date: "2025-10-26", type: "Transfer", amount: 800, amountType: true},
+    {id: 22, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
+    {id: 23, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
+];
+function showTransactionTable(id, date, type, amount, amountType){
+    const original = document.querySelector('.transaction-table');
+    const container = document.getElementById('transactions-container');
+    const newTable = original.cloneNode(true);
 
-        // 2. MISE À JOUR DE sessionStorage
-        let currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
+    newTable.classList.remove('hidden');
+    newTable.classList.add("id"+id);
+    const spans = newTable.querySelectorAll('span');
+    spans[1].textContent = date;
+    spans[3].textContent = type;
+    spans[4].textContent = amount+'$';
+    spans[4].style.color = amountType ? "#5CFF98" : "#EB5757";
 
-        // On filtre le tableau pour garder tout SAUF celui qu'on veut supprimer
-        currentUser.beneficiaries = currentUser.beneficiaries.filter(b => b.rib !== ribToDelete);
-
-        sessionStorage.setItem("connected_user", JSON.stringify(currentUser));
-
-        // 3. MISE À JOUR DE localStorage (pour que ce soit permanent)
-        let allUsers = JSON.parse(localStorage.getItem("users")) || [];
-        const userIndex = allUsers.findIndex(user => user.id === currentUser.id);
-
-        if (userIndex !== -1) {
-            allUsers[userIndex] = currentUser; // On remplace l'ancien objet par le nouveau
-            localStorage.setItem("users", JSON.stringify(allUsers));
+    container.appendChild(newTable);
+}
+function separateTransactions(arr){
+    const updatedtransactions = [];
+    let temp = [];
+    let counter = 0;
+    let index = 1;
+    arr.forEach(transaction => {
+        temp[index-1] = transaction;
+        if(index%4 === 0){
+            updatedtransactions[counter] = temp;
+            temp = [];
+            counter++;
         }
+        index++
+    });
 
-        // 4. Rafraîchir la liste
-        recent_beneficiaries();
-        display_green_notification("Beneficiary deleted!");
-    }
-})
-
-function populate_beneficiary_dropdown() {
-    // 1. On récupère le menu déroulant
-    const select_menu = document.getElementById("select_beneficiary");
-
-    // 2. On récupère l'utilisateur et ses bénéficiaires
-    const current_user = JSON.parse(sessionStorage.getItem("connected_user"));
-
-    // 3. On vide les anciennes options (sauf la première "Choose...")
-    while (select_menu.options.length > 1) {
-        select_menu.remove(1);
+    let rest = arr.length % 4;
+    if(rest){
+        for(let i=0; i<rest; i++){
+            updatedtransactions[counter] = temp.filter(obj => Object.keys(obj).length > 0);
+        }
     }
 
-    // 4. On vérifie si l'utilisateur a des bénéficiaires
-    if (current_user.beneficiaries && current_user.beneficiaries.length > 0) {
+    for(let i=0; i<updatedtransactions.length; i++){
+        updatedtransactions[i] = updatedtransactions[i].filter(obj => Object.keys(obj).length > 0);
+    }
 
-        // 5. On crée une <option> pour chaque bénéficiaire
-        current_user.beneficiaries.forEach(beneficiary => {
-            // Crée un nouvel élément <option>
-            const new_option = document.createElement("option");
-
-            // Définit le texte (ce que l'utilisateur voit)
-            new_option.textContent = beneficiary.name;
-
-            // Définit la valeur (le RIB du destinataire)
-            new_option.value = beneficiary.rib;
-
-            // Ajoute la nouvelle option à la liste
-            select_menu.appendChild(new_option);
-        });
+    return updatedtransactions
+}
+function showTransactionOfEachTable(){
+    for(let i=0; i<paginationBtns.length; i++){
+        if(paginationBtns[i].classList.contains('bg-[#283039]')){
+            allTransactions[parseInt(paginationBtns[i].textContent)-1].forEach(t => {
+                showTransactionTable(t.id, t.date, t.type, t.amount, t.amountType);
+            });
+        }
     }
 }
-
-// On sélectionne le formulaire et les champs
-const transfer_form = document.getElementById("transfer_form");
-const select_from_account = document.getElementById("select_from_account");
-const select_beneficiary = document.getElementById("select_beneficiary");
-const transfer_amount_input = document.getElementById("transfer_amount_input");
-
-// On écoute la soumission du formulaire
-transfer_form.addEventListener("submit", (event) => {
-    event.preventDefault(); // Empêche la page de recharger
-
-    // 1. Récupérer les infos
-    const from_account = select_from_account.value;
-    const receiver_rib = select_beneficiary.value;
-    const amount_string = transfer_amount_input.value;
-    const amount_regex = /^\d+(\.\d{1,2})?$/;
-
-    let current_user = JSON.parse(sessionStorage.getItem("connected_user"));
-    let all_users = JSON.parse(localStorage.getItem("users"));
-
-    // 2. Vérifications
-    if (receiver_rib === "Choose a Beneficiary") {
-        display_red_notification("Please select a beneficiary");
-        return;
+function switchPagination(num){
+    for(let i=0; i<4; i++){
+        try{paginationBtns[i].classList.remove('bg-[#283039]');}catch{}
+        paginationBtns[num%4].classList.add('bg-[#283039]');
     }
-
-    if (!amount_regex.test(amount_string)) {
-        display_red_notification("Invalid amount format. (e.g., 1200 or 1200.50)");
-        return;
+}
+function showPaginationButtons(){
+    for(let i=paginationIndex; i<=paginationIndex+3; i++){
+        if(i<=allTransactions.length){
+            let btn = document.createElement("button");
+            btn.classList = "text-sm font-normal leading-normal flex size-10 items-center justify-center text-white rounded-full pagination";
+            btn.textContent = i;
+            document.getElementById('pagination-container').insertBefore(btn, document.getElementById('next-arrow'));
+        }else{break}
     }
+    
+    try{
+        if(parseInt(paginationBtns[actualIndex-1].textContent) === actualIndex){paginationBtns[actualIndex-1].classList.add("bg-[#283039]");}
+    }catch{}
+}
 
-    const amount = parseFloat(amount_string);
-
-    if (amount <= 0) {
-        display_red_notification("Amount must be greater than 0");
-        return;
+document.getElementById("pagination-container").addEventListener("click", (e) => {
+    if(e.target.textContent != ""){
+        try{
+            if(!Number.isNaN(parseInt(e.target.textContent))){actualIndex = parseInt(e.target.textContent);}
+            switchPagination(parseInt(e.target.textContent)-1);
+            document.getElementById('transactions-container').innerHTML = "";
+            showTransactionOfEachTable();
+        }catch{}
     }
-
-    let has_enough_funds = false;
-    if (from_account === 'main') {
-        has_enough_funds = current_user.main_balance >= amount;
-    } else if (from_account === 'savings') {
-        has_enough_funds = current_user.savings_balance >= amount;
+    else{
+        try{
+            if(e.target.alt == "arrow right icon"){
+                if(allTransactions.length>paginationIndex+4){paginationIndex += 4;}
+            }else{
+                if(paginationIndex>1){paginationIndex -= 4;}
+            }
+            document.querySelectorAll(".pagination").forEach(btn => btn.remove());
+            showPaginationButtons();
+        }catch{}
     }
+});
 
-    if (!has_enough_funds) {
-        display_red_notification("You do not have enough funds in that account");
-        return;
-    }
 
-    // 3. Trouver l'expéditeur et le destinataire
-    const sender_index = all_users.findIndex(user => user.id === current_user.id);
-    const receiver_index = all_users.findIndex(user => user.rib === receiver_rib);
+var allTransactions = separateTransactions(transactions);
+var actualIndex = 1;
+var paginationIndex = 1;
+showPaginationButtons();
+var paginationBtns = document.getElementsByClassName("pagination");
+paginationBtns[actualIndex-1].classList.add("bg-[#283039]");
 
-    if (receiver_index === -1) {
-        display_red_notification("Error: Beneficiary account not found");
-        return;
-    }
-
-    if (sender_index === receiver_index) {
-        display_red_notification("You cannot send money to yourself");
-        return;
-    }
-
-    // 4. Effectuer la transaction (juste pour l'expéditeur)
-    const sender_transaction = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString(),
-        type: `Transfer to ${all_users[receiver_index].prenom}`,
-        amount: -amount
-    };
-
-    // Retirer l'argent de l'expéditeur
-    if (from_account === 'main') {
-        all_users[sender_index].main_balance -= amount;
-    } else {
-        all_users[sender_index].savings_balance -= amount;
-    }
-    all_users[sender_index].transactions.push(sender_transaction);
-
-    // 5. Sauvegarder les changements
-    localStorage.setItem("users", JSON.stringify(all_users));
-
-    // ✅ CORRECTION ICI : On met à jour l'objet 'current_user' AVANT de le sauvegarder
-    // On prend la version la plus à jour (celle de all_users)
-    sessionStorage.setItem("connected_user", JSON.stringify(all_users[sender_index]));
-
-    // 6. Donner un retour à l'utilisateur
-    display_green_notification("Transfer successful!");
-    transfer_form.reset();
-    populate_beneficiary_dropdown();
-
-    // 7. (Optionnel) Mettre à jour le texte du Dashboard même s'il est caché
-    const updated_user = all_users[sender_index];
-    balance_amount_1.textContent = `${updated_user.main_balance.toFixed(2)}$`;
-    balance_amount_2.textContent = `$${updated_user.savings_balance.toFixed(2)}`;
-    balance_amount_1.dataset.balance = `$${updated_user.main_balance.toFixed(2)}`;
-    balance_amount_2.dataset.balance = `$${updated_user.savings_balance.toFixed(2)}`;
-})
+showTransactionOfEachTable();
