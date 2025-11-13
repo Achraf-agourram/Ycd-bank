@@ -28,10 +28,6 @@ const transactions = [
     {id: 22, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false},
     {id: 23, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
 ];
-var allTransactions = separateTransactions(transactions);
-var actualIndex = 1;
-var paginationIndex = 1;
-
 function showTransactionTable(id, date, type, amount, amountType){
     const original = document.querySelector('.transaction-table');
     const container = document.getElementById('transactions-container');
@@ -127,6 +123,10 @@ document.getElementById("pagination-container").addEventListener("click", (e) =>
     }
 });
 
+
+var allTransactions = separateTransactions(transactions);
+var actualIndex = 1;
+var paginationIndex = 1;
 showPaginationButtons();
 var paginationBtns = document.getElementsByClassName("pagination");
 paginationBtns[actualIndex-1].classList.add("bg-[#283039]");
