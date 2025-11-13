@@ -29,6 +29,7 @@ const transactions = [
     {id: 23, date: "2025-10-26", type: "Recharge", amount: -35, amountType: false}
 ];
 var allTransactions = separateTransactions(transactions);
+var actualIndex = 1;
 var paginationIndex = 1;
 
 function showTransactionTable(id, date, type, amount, amountType){
@@ -85,7 +86,7 @@ function showTransactionOfEachTable(){
 }
 function switchPagination(num){
     for(let i=0; i<4; i++){
-        try{paginationBtns[i].classList.remove('bg-[#283039]');}catch(er){}
+        try{paginationBtns[i].classList.remove('bg-[#283039]');}catch{}
         paginationBtns[num%4].classList.add('bg-[#283039]');
     }
 }
@@ -97,17 +98,21 @@ function showPaginationButtons(){
             btn.textContent = i;
             document.getElementById('pagination-container').insertBefore(btn, document.getElementById('next-arrow'));
         }else{break}
-        
     }
+    
+    try{
+        if(parseInt(paginationBtns[actualIndex-1].textContent) === actualIndex){paginationBtns[actualIndex-1].classList.add("bg-[#283039]");}
+    }catch{}
 }
 
 document.getElementById("pagination-container").addEventListener("click", (e) => {
     if(e.target.textContent != ""){
         try{
+            if(!Number.isNaN(parseInt(e.target.textContent))){actualIndex = parseInt(e.target.textContent);}
             switchPagination(parseInt(e.target.textContent)-1);
             document.getElementById('transactions-container').innerHTML = "";
             showTransactionOfEachTable();
-        }catch(er){}
+        }catch{}
     }
     else{
         try{
@@ -118,12 +123,12 @@ document.getElementById("pagination-container").addEventListener("click", (e) =>
             }
             document.querySelectorAll(".pagination").forEach(btn => btn.remove());
             showPaginationButtons();
-        }catch(er){console.log(er);}
+        }catch{}
     }
 });
 
 showPaginationButtons();
 var paginationBtns = document.getElementsByClassName("pagination");
-paginationBtns[0].classList.add("bg-[#283039]");
+paginationBtns[actualIndex-1].classList.add("bg-[#283039]");
 
 showTransactionOfEachTable();
