@@ -23,13 +23,16 @@ const modal_close_button = document.getElementById("modal_close_button")
 const display_rib_close_button = document.getElementById("display_rib_close_button")
 const left_side_menu = document.getElementById("left_side_menu")
 
+
 const myaccounts_main_rib = document.getElementById("myaccounts_main_rib");
-const myaccounts_savings_rib = document.getElementById("myaccounts_savings_rib");
+const myaccounts_savings_rib = document.getElementById("myaccounts_savings_rib")
 
 const beneficiaries_view = document.getElementById("beneficiaries-view")
 const go_to_beneficiaries_button = document.getElementById("go_to_beneficiaries")
 const quick_links_transfer_button = document.getElementById("quick_links_transfer_button")
 const quick_links_paybills_button = document.getElementById("quick_links_paybills_button")
+
+const search_beneficiary_input = document.getElementById("search_beneficiary_input");
 
 quick_links_transfer_button.addEventListener("click", () => {
     go_to_transfers()
@@ -53,7 +56,7 @@ go_to_beneficiaries_button.addEventListener("click", () => {
     all_pages.forEach(page => page.classList.add("hidden"))
     beneficiaries_view.classList.remove("hidden")
     left_side_menu.classList.remove("hidden")
-    let users = JSON.parse(localStorage.getItem("users")) || []
+    sort_beneficiary_select.value = "default";
     recent_beneficiaries()
 })
 
@@ -123,11 +126,12 @@ display_rib_close_button.addEventListener("click", () => {
 })
 
 export_rib_button.addEventListener("click", () => {
-    window.print()
+    print_main_rib()
 })
 export_rib_button_1.addEventListener("click", () => {
-    window.print()
+    print_savings_rib()
 })
+
 const recent_transactions_list = document.getElementById("recent_transactions_list")
 const recent_transactions_table = document.getElementById("recent_transactions_table")
 const no_transactions_message = document.getElementById("no_transactions_message")
@@ -328,58 +332,8 @@ function recent_transactions() {
     }
 }
 
+const sort_beneficiary_select = document.getElementById("sort_beneficiary_select")
 
-// Fonction qui affiche les 4 derniers beneficiaires 
-function recent_beneficiaries() {
-    // 1. Récupérer l'utilisateur connecté
-    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"))
-
-    // 2. Vider la liste actuelle pour éviter les doublons
-    recent_beneficiaries_list.innerHTML = "";
-
-    // 3. Vérifier s'il y a des beneficiaires
-    if (!currentUser.beneficiaries || currentUser.beneficiaries.length === 0) {
-        // S'il n'y en a pas :
-        no_beneficiaries_message.classList.remove("hidden")
-        recent_beneficiaries_table.classList.add("hidden")
-        show_all_beneficiaries_button.classList.add("hidden")
-    } else {
-        // S'il y en a :
-        no_beneficiaries_message.classList.add("hidden")
-        recent_beneficiaries_table.classList.remove("hidden")
-        show_all_beneficiaries_button.classList.remove("hidden")
-
-        // 4. Prendre les 4 dernières transactions (les plus récentes)
-        const recent = currentUser.beneficiaries.slice().reverse().slice(0, 4);
-
-        recent.forEach(bn => {
-            const beneficiary_status_color = bn.status === true ? 'bg-green-600' : 'bg-red-600'
-            const beneficiary_status = bn.status === true ? 'Active' : 'Blocked'
-            const beneficiaryRow = `<div class="p-4 grid grid-cols-1 gap-3 md:grid-cols-4 md:items-center" >
-                                <div class="text-gray-400">
-                                <span class="font-medium text-white md:hidden">Name: </span>
-                                ${bn.name}
-                                </div>
-                                <div class="text-gray-400">
-                                <span class="font-medium text-white md:hidden">Account: </span>
-                                    ${bn.rib}
-                                    </div>
-
-                                    <button 
-                                    class="beneficiary_status_button ${beneficiary_status_color} h-10 rounded-lg w-full md:w-3/4 md:justify-self-center" 
-                                    data-rib="${bn.rib}">
-                                    ${beneficiary_status}
-                                     </button>
-
-                                 <button class="beneficiary_delete_button justify-self-center md:justify-self-center" data-rib="${bn.rib}">
-                                    <img src="images/icons/trash.svg" class="pointer-events-none">
-                                </button>
-                                </div >`
-            // Ajoute la nouvelle ligne au tableau
-            recent_beneficiaries_list.innerHTML += beneficiaryRow
-        })
-    }
-}
 
 recent_beneficiaries_list.addEventListener("click", (event) => {
 
@@ -484,26 +438,28 @@ function go_to_dashboard() {
 function go_to_myaccounts() {
     all_pages.forEach(page => page.classList.add("hidden"))
 
-    // 1. On récupère l'utilisateur depuis la session
+    // 1. Récupérer l'utilisateur
     const connected_user_json = sessionStorage.getItem("connected_user");
+    if (!connected_user_json) {
+        // Sécurité : si personne n'est connecté, retourner au login
+        go_to_login_page();
+        return;
+    }
     const currentUser = JSON.parse(connected_user_json);
 
-    // 2. On remplit la page "My Accounts" avec ses infos
-    if (currentUser) {
-        // Met à jour les RIBs
-        myaccounts_main_rib.textContent = `Account Number ${currentUser.rib}`;
-        myaccounts_savings_rib.textContent = `Account Number ${currentUser.rib_savings}`;
+    // 2. Remplir les champs de la page "My Accounts"
+    myaccounts_main_rib.textContent = `Checking ${currentUser.rib}`;
+    myaccounts_savings_rib.textContent = `Savings ${currentUser.rib_savings}`;
 
-        // Met à jour les soldes (avec le $ à droite)
-        balance_amount_3.textContent = `${currentUser.main_balance.toFixed(2)}$`;
-        balance_amount_4.textContent = `${currentUser.savings_balance.toFixed(2)}$`;
+    // Mettre à jour les soldes (les variables balance_amount_3 et 4 existent déjà)
+    balance_amount_3.textContent = `$${currentUser.main_balance.toFixed(2)}`;
+    balance_amount_4.textContent = `$${currentUser.savings_balance.toFixed(2)}`;
 
-        // Met à jour les data-balance pour le show/hide (avec le $ à droite)
-        balance_amount_3.dataset.balance = `${currentUser.main_balance.toFixed(2)}$`;
-        balance_amount_4.dataset.balance = `${currentUser.savings_balance.toFixed(2)}$`;
-    }
+    // Mettre à jour les data-balance pour le show/hide
+    balance_amount_3.dataset.balance = `$${currentUser.main_balance.toFixed(2)}`;
+    balance_amount_4.dataset.balance = `$${currentUser.savings_balance.toFixed(2)}`;
 
-    // 3. On affiche la page
+    // 3. Afficher la page
     my_accounts_view.classList.remove("hidden")
     left_side_menu.classList.remove("hidden")
 }
@@ -550,6 +506,14 @@ function display_red_notification(msg) {
     }, 3000)
 }
 
+sort_beneficiary_select.addEventListener("change", () => {
+    // On vérifie si on est en mode "Show All" pour le rester
+    const is_showing_all = show_less_beneficiaries_button.classList.contains("hidden") === false;
+
+    // On relance la fonction d'affichage, qui lira la nouvelle valeur du tri
+    recent_beneficiaries(is_showing_all);
+})
+
 // Fonction qui affiche les beneficiaires (par défaut, 4)
 function recent_beneficiaries(show_all = false) {
     // 1. Récupérer l'utilisateur connecté
@@ -572,9 +536,24 @@ function recent_beneficiaries(show_all = false) {
     no_beneficiaries_message.classList.add("hidden")
     recent_beneficiaries_table.classList.remove("hidden")
 
-    // 4. ✅ LOGIQUE MISE À JOUR : On prend 4 ou TOUS
+    // 4. ✅ LOGIQUE DE TRI MISE À JOUR
+    const sort_value = sort_beneficiary_select.value;
+    let all_beneficiaries = [...currentUser.beneficiaries]; // Copie
+
+    // c. Appliquer le tri
+    if (sort_value === 'asc') {
+        // Tri A-Z
+        all_beneficiaries.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sort_value === 'desc') {
+        // Tri Z-A
+        all_beneficiaries.sort((a, b) => b.name.localeCompare(a.name));
+    } else { // 'default'
+        // Par défaut, on inverse pour voir le dernier ajouté en premier
+        all_beneficiaries.reverse();
+    }
+
+    // 5. LOGIQUE "SHOW ALL"
     let beneficiaries_to_show;
-    const all_beneficiaries = currentUser.beneficiaries.slice().reverse();
 
     if (show_all) {
         beneficiaries_to_show = all_beneficiaries; // On prend tout
@@ -591,7 +570,7 @@ function recent_beneficiaries(show_all = false) {
         show_less_beneficiaries_button.classList.add("hidden");
     }
 
-    // 5. On affiche la liste (que ce soit 4 ou tous)
+    // 6. On affiche la liste
     beneficiaries_to_show.forEach(bn => {
         const beneficiary_status_color = bn.status === true ? 'bg-green-600' : 'bg-red-600'
         const beneficiary_status = bn.status === true ? 'Active' : 'Blocked'
@@ -608,16 +587,15 @@ function recent_beneficiaries(show_all = false) {
                                 class="beneficiary_status_button ${beneficiary_status_color} h-10 rounded-lg w-full md:w-3/4 md:justify-self-center" 
                                 data-rib="${bn.rib}">
                                 ${beneficiary_status}
-                                </button>
+                            </button>
                                 <button class="beneficiary_delete_button justify-self-center md:justify-self-center" data-rib="${bn.rib}">
                                 <img src="images/icons/trash.svg" class="pointer-events-none">
-                                </button>
-                                </div >`
+                            </button>
+                        </div >`
         // Ajoute la nouvelle ligne au tableau
         recent_beneficiaries_list.innerHTML += beneficiaryRow
     })
 }
-
 
 // --- ÉCOUTEURS POUR LES BOUTONS "SHOW ALL" / "SHOW LESS" ---
 
@@ -678,6 +656,7 @@ signup_form.addEventListener("submit", (event) => {
     // Stocker ce nouvel utilisateur dans le local storage
     const rib = generate_rib(25)
     const rib_savings = generate_rib(25)
+
     const id = rib.substring(0, 8)
     let users = JSON.parse(localStorage.getItem("users")) || []
     const new_user = {
@@ -704,6 +683,64 @@ signup_form.addEventListener("submit", (event) => {
     // 3. Réinitialiser
     signup_form.reset()
 })
+
+function print_main_rib() {
+    // 1. Récupérer l'utilisateur
+    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
+    if (!currentUser) {
+        display_red_notification("Erreur: Utilisateur non trouvé.");
+        return;
+    }
+
+    // 2. Ouvrir une petite fenêtre
+    const printWindow = window.open('', '_blank', 'width=600,height=200');
+
+    // 3. Écrire le HTML (juste pour le compte principal)
+    printWindow.document.write(`
+        <html>
+            <head><title>Main Account Details</title></head>
+            <body style="font-family: Arial, sans-serif; padding: 25px;">
+                <h2>Main Account (Checking)</h2>
+                <p style="font-family: monospace; font-size: 1.2em;">${currentUser.rib}</p>
+                </body>
+            </html>
+        `)
+
+    // 4. Lancer l'impression et fermer la fenêtre
+    printWindow.document.close();
+    printWindow.print();
+    printWindow.close();
+}
+
+
+// Fonction SEULEMENT pour le RIB épargne
+function print_savings_rib() {
+    // 1. Récupérer l'utilisateur
+    const currentUser = JSON.parse(sessionStorage.getItem("connected_user"));
+    if (!currentUser) {
+        display_red_notification("Erreur: Utilisateur non trouvé.");
+        return;
+    }
+
+    // 2. Ouvrir une petite fenêtre
+    const printWindow = window.open('', '_blank', 'width=600,height=200');
+
+    // 3. Écrire le HTML (juste pour le compte épargne)
+    printWindow.document.write(`
+        <html>
+            <head><title>Savings Account Details</title></head>
+            <body style="font-family: Arial, sans-serif; padding: 25px;">
+                    <h2>Savings Account</h2>
+                    <p style="font-family: monospace; font-size: 1.2em;">${currentUser.rib_savings}</p>
+            </body>
+        </html>
+        `)
+
+    // 4. Lancer l'impression et fermer la fenêtre
+    printWindow.document.close();
+    printWindow.print();
+    printWindow.close();
+}
 
 // Clic sur le bouton "go to login" du modal
 modal_close_button.addEventListener("click", () => {
