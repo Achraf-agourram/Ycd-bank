@@ -93,8 +93,8 @@ document.getElementById("pagination-container").addEventListener("click", (e) =>
     }
 });
 
-if([].length != 0){
-    var allTransactions = separateTransactions([]);
+if(JSON.parse(localStorage.getItem("users"))[0].transactions.length != 0){
+    var allTransactions = separateTransactions(JSON.parse(localStorage.getItem("users"))[0].transactions);
     var actualIndex = 1;
     var paginationIndex = 1;
     document.getElementById("pagination-container").classList.remove('hidden');
